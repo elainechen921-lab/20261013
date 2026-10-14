@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- 手機響應式設定 -->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>p5.js 選擇題測驗</title>
+
+  <!-- 使用指定的 Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC&family=Noto+Sans+TC&family=Outfit&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+
+    #app {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <!-- 載入 p5.js -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.1/lib/p5.min.js"></script>
+
+  <!-- 載入測驗程式 -->
+  <script src="sketch.js"></script>
+
+  <script>
+    /*
+      等待 Google Fonts 載入完成後啟動 p5.js。
+      即使字型載入失敗，也會繼續啟動網站，
+      避免因網路問題造成空白頁面。
+    */
+    async function startQuiz() {
+      try {
+        if (document.fonts && document.fonts.ready) {
+          await Promise.race([
+            document.fonts.ready,
+            new Promise(resolve => {
+              setTimeout(resolve, 4000);
+            })
+          ]);
+
+          await Promise.all([
+            document.fonts.load(
+              "400 20px 'LXGW WenKai TC'"
+            ),
+            document.fonts.load(
+              "400 20px 'Noto Sans TC'"
+            ),
+            document.fonts.load(
+              "400 20px 'Outfit'"
+            )
+          ]);
+        }
+      } catch (error) {
+        console.warn(
+          "Google Fonts 載入失敗，將使用替代字型。",
+          error
+        );
+      }
+
+      if (
+        typeof window.createQuizSketch ===
+        "function"
+      ) {
+        new p5(
+          window.createQuizSketch,
+          document.getElementById("app")
+        );
+      } else {
+        document.body.innerHTML =
+          "<p style='padding:20px;color:red;'>" +
+          "sketch.js 載入失敗，請確認檔案名稱與路徑。" +
+          "</p>";
+      }
+    }
+
+    startQuiz();
+  </script>
+</body>
+</html>
