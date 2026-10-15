@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1976D2">
+  <title>p5.js 網頁與 p5.js 基礎測驗</title>
+
+  <!-- Google Fonts：內文使用 Noto Sans TC，英文與數字可使用 Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      font-family: "Noto Sans TC", sans-serif;
+      background: #f5f7fb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f5f7fb;
+      overscroll-behavior: none;
+    }
+
+    #app {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <main id="app" aria-label="p5.js 選擇題測驗"></main>
+
+  <!-- p5.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.1/lib/p5.min.js"></script>
+  <!-- Your instance-mode sketch -->
+  <script src="sketch.js"></script>
+
+  <script>
+    // 等待 Google Fonts；若網路或字型服務失敗，逾時後仍啟動網站，避免空白頁面。
+    async function startQuiz() {
+      const fontWait = (async function () {
+        if (!document.fonts) {
+          return;
+        }
+
+        await document.fonts.ready;
+        await Promise.all([
+          document.fonts.load("400 20px 'Noto Sans TC'"),
+          document.fonts.load("400 20px 'Outfit'")
+        ]);
+      })();
+
+      const timeout = new Promise(function (resolve) {
+        window.setTimeout(resolve, 3000);
+      });
+
+      try {
+        await Promise.race([fontWait, timeout]);
+      } catch (error) {
+        console.warn("Google Fonts 載入失敗，網站將使用可用的替代字型。", error);
+      }
+
+      if (typeof window.createQuizSketch !== "function") {
+        document.getElementById("app").innerHTML =
+          "<p style='padding:24px;color:#b00020'>sketch.js 載入失敗，請確認三個檔案位於同一個資料夾。</p>";
+        return;
+      }
+
+      // 字型等待完成或逾時後才建立 p5 instance。
+      new p5(window.createQuizSketch, document.getElementById("app"));
+    }
+
+    startQuiz();
+  </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1976D2">
+  <title>p5.js 網頁與 p5.js 基礎測驗</title>
+
+  <!-- Google Fonts：內文使用 Noto Sans TC，英文與數字可使用 Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+
+  <style>
+    /* 基本頁面設定：畫布等於視窗大小，避免瀏覽器產生額外捲軸。 */
+    :root {
+      font-family: "Noto Sans TC", sans-serif;
+      background: #f5f7fb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f5f7fb;
+      overscroll-behavior: none;
+    }
+
+    #app {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      touch-action: none;
+    }
+
+    /* p5.js 尚未建立或外部程式失敗時仍提供清楚訊息。 */
+    #startup-message {
+      margin: 0;
+      padding: 24px;
+      color: #172033;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <main id="app" aria-label="p5.js 選擇題測驗">
+    <p id="startup-message">測驗載入中，請稍候……</p>
+  </main>
+
+  <!-- 載入 p5.js -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.1/lib/p5.min.js"></script>
+  <!-- 載入測驗程式；sketch.js 不讀取本地 questions.csv。 -->
+  <script src="sketch.js"></script>
+
+  <script>
+    // 等待 Google Fonts 載入，最多等待 4 秒；逾時仍啟動網站，避免整頁空白。
+    async function startQuiz() {
+      const app = document.getElementById("app");
+      const startupMessage = document.getElementById("startup-message");
+
+      try {
+        if (document.fonts) {
+          const fontReady = document.fonts.ready;
+          const fontRequests = Promise.all([
+            document.fonts.load("400 20px 'Noto Sans TC'"),
+            document.fonts.load("700 20px 'Noto Sans TC'"),
+            document.fonts.load("400 20px 'Outfit'"),
+            document.fonts.load("700 20px 'Outfit'")
+          ]);
+
+          await Promise.race([
+            Promise.all([fontReady, fontRequests]),
+            new Promise(function (resolve) {
+              window.setTimeout(resolve, 4000);
+            })
+          ]);
+        }
+      } catch (error) {
+        // 字型失敗時仍然啟動，sketch.js 會使用瀏覽器可用的替代字型。
+        console.warn("Google Fonts 載入失敗，將使用可用的替代字型。", error);
+      }
+
+      if (typeof window.p5 !== "function") {
+        app.innerHTML = "<p id='startup-message'>p5.js 載入失敗，請檢查網路連線後重新整理頁面。</p>";
+        return;
+      }
+
+      if (typeof window.createQuizSketch !== "function") {
+        app.innerHTML = "<p id='startup-message'>sketch.js 載入失敗，請確認 index.html 與 sketch.js 位於同一個資料夾。</p>";
+        return;
+      }
+
+      if (startupMessage) {
+        startupMessage.remove();
+      }
+
+      // 使用 instance mode 啟動 p5.js，之後由畫布顯示題庫載入狀態或錯誤。
+      new p5(window.createQuizSketch, app);
+    }
+
+    startQuiz();
+  </script>
+</body>
+</html>
